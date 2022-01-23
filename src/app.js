@@ -15,12 +15,16 @@ app.post('/sign-up', (req, res) => {
 });
 
 app.get('/tweets', (req, res) => {
-  res.send(tweets);
+  if(tweets.length < 10){
+    res.send(tweets);
+  }else{
+    res.send(tweets.slice((tweets.length - 10), tweets.length));
+  }
 });
 
 app.post('/tweets', (req, res) => {
   const tweet = req.body;
-  const avatar = users[0].avatar;
+  const avatar = users.find(user => user.username === tweet.username).avatar;
   const truthyTweet = {
     ...tweet,
     "avatar": avatar
