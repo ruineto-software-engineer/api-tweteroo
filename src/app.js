@@ -45,35 +45,39 @@ app.post('/tweets', (req, res) => {
 });
 
 app.get('/tweets', (req, res) => {
-  const page = parseInt(req.query.page);
+  const page = req.query.page;
 
-  if(page <= 0){
+  if(!page || page < 1){
     res.status(400).send("Informe uma página válida!");
-    return
+    return;
   }
 
-  if(((page - 1) * 10 > tweets.length)){
-    return
-  }
+  const searchTweet = tweets.length - (page) * 10;
+  const firstTweet = (page - 1) * 10;
 
-  if(tweets.length < 10){
-    res.send(tweets.slice(0).reverse());
+  let initialValue;
+  if(tweets.length <= 10){
+    initialValue = 0;
   }else{
-    if(page === 1){
-      res.send(tweets.slice((tweets.length - 10), tweets.length).reverse());
+    if(searchTweet < 0){
+      initialValue = 0;
     }else{
-      let result = [];
-      const tweetsSliced = tweets.slice((tweets.length - 10), tweets.length).reverse();
-      for (let i = 0; i < tweets.length; i++) {
-        const element = tweets[i];
-        if(!tweetsSliced.includes(element)){
-          result.push(element);
-        };
-      }
-
-      res.send(result.reverse());
+      initialValue = searchTweet;
     }
   }
+
+  let finalValue;
+  if(firstTweet > tweets.length){
+    finalValue = 0;
+  }else{
+    if(initialValue === 0){
+      finalValue = tweets.length - firstTweet;
+    }else{
+      finalValue = initialValue + 10;
+    }
+  }
+
+  res.send(tweets.slice(initialValue, finalValue).reverse());
 });
 
 app.get('/tweets/:username', (req, res) => {
