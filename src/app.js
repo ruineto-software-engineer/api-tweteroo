@@ -1,8 +1,10 @@
 import express from "express";
 import cors from 'cors';
 import services from './services.js';
+import dotenv from "dotenv";
+dotenv.config();
 
-const { checkBody, checkIsNotBlank } = services
+const { checkBody, checkIsNotBlank } = services;
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -12,14 +14,14 @@ const tweets = [];
 
 app.post('/sign-up', (req, res) => {
   const user = req.body;
-  if(user && checkBody(["username", "avatar"], user)){
-    if(checkIsNotBlank(user.username) && checkIsNotBlank(user.avatar)){
+  if (user && checkBody(["username", "avatar"], user)) {
+    if (checkIsNotBlank(user.username) && checkIsNotBlank(user.avatar)) {
       users.push(user);
       res.status(201).send("CREATED");
-    }else{
+    } else {
       res.status(400).send("Todos os campos são obrigatórios!");
     }
-  }else{
+  } else {
     res.status(400).send("Todos os campos são obrigatórios!");
   }
 });
@@ -35,11 +37,10 @@ app.post('/tweets', (req, res) => {
       "avatar": avatar.avatar,
       "tweet": tweet.tweet
     }
-    console.log(dataTweet);
+
     tweets.push(dataTweet);
     res.status(201).send("CREATED");
-  }
-  else {
+  } else {
     res.status(400).json("Todos os campos são obrigatórios!");
   }
 });
@@ -47,7 +48,7 @@ app.post('/tweets', (req, res) => {
 app.get('/tweets', (req, res) => {
   const page = req.query.page;
 
-  if(!page || page < 1){
+  if (!page || page < 1) {
     res.status(400).send("Informe uma página válida!");
     return;
   }
@@ -56,23 +57,23 @@ app.get('/tweets', (req, res) => {
   const firstTweet = (page - 1) * 10;
 
   let initialValue;
-  if(tweets.length <= 10){
+  if (tweets.length <= 10) {
     initialValue = 0;
-  }else{
-    if(searchTweet < 0){
+  } else {
+    if (searchTweet < 0) {
       initialValue = 0;
-    }else{
+    } else {
       initialValue = searchTweet;
     }
   }
 
   let finalValue;
-  if(firstTweet > tweets.length){
+  if (firstTweet > tweets.length) {
     finalValue = 0;
-  }else{
-    if(initialValue === 0){
+  } else {
+    if (initialValue === 0) {
       finalValue = tweets.length - firstTweet;
-    }else{
+    } else {
       finalValue = initialValue + 10;
     }
   }
@@ -87,13 +88,13 @@ app.get('/tweets/:username', (req, res) => {
     return tweet.username === username;
   });
 
-  if(selectedUserTweets.length !== 0){
+  if (selectedUserTweets.length !== 0) {
     res.send(selectedUserTweets);
-  }else{
+  } else {
     res.status(400).send('Este usuário não tem tweets no momento, informe outro usuário!');
   }
 });
 
-app.listen(5000, () => {
-  console.log('Running app in http://localhost:5000');
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on PORT ${process.env.PORT}`);
 });
